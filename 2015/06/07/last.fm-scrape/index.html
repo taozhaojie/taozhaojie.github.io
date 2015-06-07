@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>My First Post - Teddy&#39;s Blog</title>
+  <title>Scrape Last.fm using Ruby - Teddy&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The blog is based on Hexo. This is my first post here, aim to familiar with the features and the markdown language.">
+  <meta name="description" content="Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is Last.fm Dataset. However, this dataset only includes users’ rece">
 <meta property="og:type" content="article">
-<meta property="og:title" content="My First Post">
-<meta property="og:url" content="http://yoursite.com/2015/06/06/hello-world/index.html">
+<meta property="og:title" content="Scrape Last.fm using Ruby">
+<meta property="og:url" content="http://yoursite.com/2015/06/07/last.fm-scrape/index.html">
 <meta property="og:site_name" content="Teddy's Blog">
-<meta property="og:description" content="The blog is based on Hexo. This is my first post here, aim to familiar with the features and the markdown language.">
-<meta property="og:updated_time" content="2015-06-06T05:16:26.440Z">
+<meta property="og:description" content="Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is Last.fm Dataset. However, this dataset only includes users’ rece">
+<meta property="og:updated_time" content="2015-06-07T03:03:30.800Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="My First Post">
-<meta name="twitter:description" content="The blog is based on Hexo. This is my first post here, aim to familiar with the features and the markdown language.">
+<meta name="twitter:title" content="Scrape Last.fm using Ruby">
+<meta name="twitter:description" content="Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is Last.fm Dataset. However, this dataset only includes users’ rece">
   
   
     <link rel="icon" href="/favicon.png">
@@ -49,7 +49,7 @@
     </div>
   </div>
 </header>
-    <section id="main" class="outer"><article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-last.fm-scrape" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -57,30 +57,35 @@
         
   
     <h1 class="article-title" itemprop="name">
-      My First Post
+      Scrape Last.fm using Ruby
     </h1>
   
 
       </header>
     
     <div class="article-meta">
-      <a href="/2015/06/06/hello-world/" class="article-date">
-  <time datetime="2015-06-06T05:16:26.440Z" itemprop="datePublished">2015-06-06</time>
+      <a href="/2015/06/07/last.fm-scrape/" class="article-date">
+  <time datetime="2015-06-07T03:03:30.800Z" itemprop="datePublished">2015-06-07</time>
 </a>
       
       
         <div class="article-comment-link-wrap">
-          <a href="http://yoursite.com/2015/06/06/hello-world/#disqus_thread" class="article-comment-link">评论</a>
+          <a href="http://yoursite.com/2015/06/07/last.fm-scrape/#disqus_thread" class="article-comment-link">评论</a>
         </div>
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>The blog is based on <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>. This is my first post here, aim to familiar with the features and the markdown language.</p>
+        <p>Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is <a href="http://www.dtic.upf.edu/~ocelma/MusicRecommendationDataset/lastfm-1K.html" target="_blank" rel="external">Last.fm Dataset</a>. However, this dataset only includes users’ recent played musics. Normally, users’ rating histries are important for recommendation algorithms. The play histries in Last.fm Dataset only represent users’ implicit ratings, which means the ratings can be inferred from play times, skip or not, etc. One the other side, the explicit ratings are not avaliable in this dataset, which are users’ explicit activities such as mark a song as loved or banned. After some study, I decide to scrape the data by myself, using <a href="http://cn.last.fm/api" target="_blank" rel="external">Last.fm API</a>.</p>
 <a id="more"></a>
-<h2 id="The_Theme">The Theme</h2><p>The theme I used is <a href="https://github.com/ppoffice/hexo-theme-minos" target="_blank" rel="external">Minos</a>. Which can be installed from:</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>git clone <span class="symbol">https:</span>/<span class="regexp">/github.com/ppoffice</span><span class="regexp">/hexo-theme-minos.git themes/minos</span></span><br></pre></td></tr></table></figure>
-<h2 id="The_Comment_System">The Comment System</h2><p>I use the default comment system, <a href="https://disqus.com/" target="_blank" rel="external">Disqus</a>.</p>
+<h2 id="Before_Start">Before Start</h2><p>If you are on Windows platform, do not upgrade your ruby to version 2.2. An <a href="https://github.com/sparklemotion/nokogiri/issues/1256" target="_blank" rel="external">issue</a> on GitHub shows the gem nokogiri is not supported well on Ruby 2.2.</p>
+<p>The following Ruby Gems are required.</p>
+<ul>
+<li>mechanize</li>
+<li>url</li>
+<li>httparty</li>
+<li>json</li>
+</ul>
 
       
     </div>
@@ -94,14 +99,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2015/06/07/last.fm-scrape/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          Scrape Last.fm using Ruby
-        
-      </div>
-    </a>
   
+    <a href="/2015/06/06/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">My First Post&nbsp;<span>&gt;</span></div>
+    </a>
   
 </nav>
 
@@ -128,7 +129,7 @@
 <script>
   var disqus_shortname = 'zhaojietao';
   
-  var disqus_url = 'http://yoursite.com/2015/06/06/hello-world/';
+  var disqus_url = 'http://yoursite.com/2015/06/07/last.fm-scrape/';
   
   (function(){
     var dsq = document.createElement('script');
