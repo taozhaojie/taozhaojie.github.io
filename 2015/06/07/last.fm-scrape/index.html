@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://yoursite.com/2015/06/07/last.fm-scrape/index.html">
 <meta property="og:site_name" content="Teddy's Blog">
 <meta property="og:description" content="Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is Last.fm Dataset. However, this dataset only includes users’ rece">
-<meta property="og:updated_time" content="2015-06-07T03:03:30.800Z">
+<meta property="og:updated_time" content="2015-06-07T04:10:00.290Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Scrape Last.fm using Ruby">
 <meta name="twitter:description" content="Recently I was doing a project on analyzing music recommendation algorithms. I have found that one of the popular free music dataset is Last.fm Dataset. However, this dataset only includes users’ rece">
@@ -65,7 +65,7 @@
     
     <div class="article-meta">
       <a href="/2015/06/07/last.fm-scrape/" class="article-date">
-  <time datetime="2015-06-07T03:03:30.800Z" itemprop="datePublished">2015-06-07</time>
+  <time datetime="2015-06-07T04:10:00.290Z" itemprop="datePublished">2015-06-07</time>
 </a>
       
       
@@ -86,6 +86,24 @@
 <li>httparty</li>
 <li>json</li>
 </ul>
+<h2 id="Get_User_List">Get User List</h2><p>This part is not supported by the API. The way I do this is scrape it from Last.fm webpage. One way is to find user lists from <a href="http://www.last.fm/community/users/active" target="_blank" rel="external">Recently Active Users</a>. But it only contains 8 pages, sometimes it is not enough. Another way is to find the user list in <a href="http://www.last.fm/community/groups/active" target="_blank" rel="external">Last.fm Groups</a>. I was using the second method.</p>
+<p>The completed code can be found <a href="https://github.com/taozhaojie/scrape_last.fm" target="_blank" rel="external">here</a>.</p>
+<p>First, get a new Mechanize agent.</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">agent = Mechanize.<span class="keyword">new</span></span><br></pre></td></tr></table></figure>
+<p>And use the following code to get usernames.</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="operator">in</span> <span class="number">1.</span>.page_no</span><br><span class="line">	puts <span class="string">"Fetching page no.#&#123;i&#125;..."</span></span><br><span class="line">	page = agent.<span class="built_in">get</span>(<span class="string">"http://www.last.fm/group/#&#123;url_name&#125;/members?memberspage=#&#123;i&#125;"</span>)</span><br><span class="line">	page.search(<span class="string">"strong"</span>).search(<span class="string">"a"</span>).map <span class="built_in">do</span> |<span class="keyword">text</span>|</span><br><span class="line">		uid = <span class="keyword">text</span>.attributes[<span class="string">'href'</span>].<span class="keyword">text</span>.gsub(<span class="string">"/user/"</span>,<span class="string">""</span>)</span><br><span class="line">	<span class="function"><span class="keyword">end</span></span><br><span class="line"><span class="title">end</span></span></span><br></pre></td></tr></table></figure>
+<p>The <code>page_no</code> is the total pages in this group, which can be obtained by:</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">page = agent.<span class="function"><span class="title">get</span><span class="params">(<span class="string">"http://www.last.fm/group/#&#123;url_name&#125;/members?memberspage=1"</span>)</span></span></span><br><span class="line">page_no = page.<span class="function"><span class="title">search</span><span class="params">(<span class="string">"a[class='pagelink lastpage']"</span>)</span></span>[<span class="number">0</span>]<span class="class">.text</span><span class="class">.to_i</span></span><br></pre></td></tr></table></figure>
+<h2 id="Get_Loved_and_Banned_Tracks">Get Loved and Banned Tracks</h2><p>Before start, apply an api key from <a href="https://secure.last.fm/login?s=1&amp;backto=http%3A%2F%2Fwww.last.fm%2Fapi%2Faccount%2Fcreate" target="_blank" rel="external">here</a>.</p>
+<h3 id="Loved_Tracks">Loved Tracks</h3><p>To get loved tracks, for each user name <code>uid</code>, and url is<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url = "http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&amp;user=#&#123;<span class="ruby">uid&#125;</span>&amp;limit=1&amp;api_key=#&#123;<span class="ruby">api_key&#125;</span>"</span><br></pre></td></tr></table></figure></p>
+<p>And then use Http GET to get the response<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response = HTTParty.<span class="literal">get</span>(url, :verify =&gt; <span class="keyword">false</span>)</span><br></pre></td></tr></table></figure></p>
+<p>The <code>response</code> is a json object, convert it to a Ruby Hash.<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">h = JSON.<span class="function"><span class="title">parse</span><span class="params">(response.body)</span></span></span><br></pre></td></tr></table></figure></p>
+<p>If the user have only one loved music,<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">artist = h[<span class="link_label">"lovedtracks"</span>][<span class="link_reference">"track"</span>][<span class="link_label">"artist"</span>][<span class="link_reference">"name"</span>]</span><br><span class="line">music = h[<span class="link_label">"lovedtracks"</span>][<span class="link_reference">"track"</span>][<span class="link_label">"name"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>If the user have more than 1 musics, then the <code>h[&quot;lovedtracks&quot;][&quot;track&quot;]</code> is an array.<br><figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="atom">h</span>[<span class="string">"lovedtracks"</span>][<span class="string">"track"</span>].<span class="atom">each</span>&#123;|<span class="atom">track</span>|</span><br><span class="line">	<span class="atom">artist</span> = <span class="atom">track</span>[<span class="string">"artist"</span>][<span class="string">"name"</span>]</span><br><span class="line">	<span class="atom">music</span> = <span class="atom">track</span>[<span class="string">"track"</span>][<span class="string">"name"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Banned_Tracks">Banned Tracks</h3><p>Similar to loved tracks, but needs to change the url to</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url = "http://ws.audioscrobbler.com/2.0/?method=user.getbannedtracks&amp;user=#&#123;<span class="ruby">uid&#125;</span>&amp;limit=1&amp;api_key=#&#123;<span class="ruby">api_key&#125;</span>"</span><br></pre></td></tr></table></figure>
+<p>And the key of <code>h</code> is <code>&quot;bannedtracks&quot;</code>.</p>
+<p>See <a href="https://github.com/taozhaojie/scrape_last.fm/blob/master/getTracks.rb" target="_blank" rel="external">here</a> for the complete code.</p>
 
       
     </div>
