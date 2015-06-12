@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>TF-IDF Implementation with C++ - Teddy&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="TF-IDF weight is widely used in text mining. It measures the importances of a word to a document in corpus. Recently I was doing with music recommendation algirhtms, and I have found that many papers">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TF-IDF Implementation with C++">
+<meta property="og:url" content="http://yoursite.com/2015/06/12/tfidf/index.html">
+<meta property="og:site_name" content="Teddy's Blog">
+<meta property="og:description" content="TF-IDF weight is widely used in text mining. It measures the importances of a word to a document in corpus. Recently I was doing with music recommendation algirhtms, and I have found that many papers">
+<meta property="og:image" content="http://latex.codecogs.com/gif.latex?w_{ij}&space;=&space;tf_{ij}&space;\ast&space;log&space;\big(&space;\frac{N}{n_{j}}&space;\big)">
+<meta property="og:updated_time" content="2015-06-12T13:41:47.168Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TF-IDF Implementation with C++">
+<meta name="twitter:description" content="TF-IDF weight is widely used in text mining. It measures the importances of a word to a document in corpus. Recently I was doing with music recommendation algirhtms, and I have found that many papers">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/contact">Contact</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-tfidf" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      TF-IDF Implementation with C++
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/12/tfidf/" class="article-date">
+  <time datetime="2015-06-12T13:41:47.168Z" itemprop="datePublished">2015-06-12</time>
+</a>
+      
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://yoursite.com/2015/06/12/tfidf/#disqus_thread" class="article-comment-link">评论</a>
+        </div>
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>TF-IDF weight is widely used in text mining. It measures the importances of a word to a document in corpus. Recently I was doing with music recommendation algirhtms, and I have found that many papers were using the TF-IDF to measure the lyric similarity between musics. I have searched and did not find a TF-IDF library, so I decided to code one by myself.<br><a id="more"></a></p>
+<h2 id="Basics">Basics</h2><p>TF-IDF weight is calculated by 2 components, Term Frequency (TF) and Inverse Document Frequency (IDF). The definations of TF-IDF weight of a term <em>j</em> in document <em>i</em> is shown below.</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=w_{ij}&space;=&space;tf_{ij}&space;\ast&space;log&space;\big(&space;\frac{N}{n_{j}}&space;\big)" target="_blank"><img src="http://latex.codecogs.com/gif.latex?w_{ij}&space;=&space;tf_{ij}&space;\ast&space;log&space;\big(&space;\frac{N}{n_{j}}&space;\big)" title="w_{ij} = tf_{ij} \ast log \big( \frac{N}{n_{j}} \big)"></a></p>
+<p>where <em>tf<sub>ij</sub></em> is the frequency of term <em>j</em> in document <em>i</em>, <em>N</em> is total number of documents, and <em>n<sub>j</sub></em> is number of documents contains term <em>j</em>.</p>
+<p>For more details, please refer to <a href="http://www.tfidf.com/" target="_blank" rel="external">TF-IDF Tutorial</a>.</p>
+<h2 id="Code">Code</h2><p>Assume we have 25 text files, each text file is a document. The code here will compute the TF-IDF weight for these 25 documents.</p>
+<p>Firstly, we need to split the input file contents to words. Here I use the <code>boost::tokenizer</code>, it can split the <code>std::string</code> by everything which are not numbers and letters.<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; textParse(<span class="built_in">std</span>::<span class="built_in">string</span> &amp; bigString)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; vec;</span><br><span class="line">	boost::tokenizer&lt;&gt; tok(bigString);</span><br><span class="line">	<span class="keyword">for</span> (boost::tokenizer&lt;&gt;::iterator beg = tok.begin(); beg != tok.end(); ++ beg)</span><br><span class="line">	&#123;</span><br><span class="line">	    vec.push_back(*beg);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> vec;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>The return value is a <code>std::vector&lt;std::string&gt;</code>, using a <code>std::vector&lt;std::vector&lt;std::string&gt;&gt; rawDataSet</code> contains the vector of all documents.</p>
+<p>Next, we need a word list, which should include all unique words in all documents. In this example, the word list is in <code>std::set&lt;std::string&gt; vocabListSet</code>。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">createVocabList</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">set</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; vocabListSet;</span><br><span class="line">	<span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; document : rawDataSet)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">string</span> word : document)</span><br><span class="line">			vocabListSet.insert(word);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">std</span>::copy(vocabListSet.begin(), vocabListSet.end(), <span class="built_in">std</span>::back_inserter(vocabList));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Using the word list, we can convert each documents to digits with <a href="https://en.wikipedia.org/wiki/Bag-of-words_model" target="_blank" rel="external">Bag-of-words model</a>. The function below converts <code>std::vector</code> of words in a document to a bag-of-words vector.<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Eigen::<span class="function">VectorXf <span class="title">bagOfWords2VecMN</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; &amp; inputSet)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">float</span>&gt; returnVec(vocabList.size(), <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">string</span> word : inputSet)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">size_t</span> idx = <span class="built_in">std</span>::find(vocabList.begin(), vocabList.end(), word) - vocabList.begin();</span><br><span class="line">		<span class="keyword">if</span> (idx == vocabList.size())</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">"word: "</span> &lt;&lt; word &lt;&lt; <span class="string">"not found"</span> &lt;&lt; endl;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			returnVec.at(idx) += <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	Eigen::Map&lt;Eigen::VectorXf&gt; v(returnVec.data(),returnVec.size());</span><br><span class="line">	<span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>The return value type of <code>bagOfWords2VecMN()</code> is <code>Eigen::VectorXf</code>. After convert all documents in <code>rawDataSet</code>, the vectors of all documents are in <code>Eigen::MatrixXf dataMat</code>.<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vec2mat</span><span class="params">()</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Eigen::VectorXf&gt; vec;</span><br><span class="line">	<span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">string</span>&gt; document : rawDataSet)</span><br><span class="line">	&#123;</span><br><span class="line">		vec.push_back(bagOfWords2VecMN(document));</span><br><span class="line">	&#125;</span><br><span class="line">	ncol = vec[<span class="number">0</span>].size();</span><br><span class="line">	nrow = vec.size();</span><br><span class="line">	dataMat.resize(nrow, ncol);</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nrow; ++i)</span><br><span class="line">	&#123;</span><br><span class="line">		dataMat.row(i) = vec[i];</span><br><span class="line">	&#125;</span><br><span class="line">	rawDataSet.clear(); <span class="comment">// release memory</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>After above functions, we have a matrix includes the number of occurance of each term in each document. To get the <em>n<sub>j</sub></em> in the weight equation, one possible solution is:</p>
+<ul>
+<li>Create another matrix using set-of-words model, which marks 1 when the document have the term, no matter how many times the term occcurs.</li>
+<li>Sum all the rows in the matrix, and then we have a vector includes the occurance of all documents.</li>
+</ul>
+<p>The code here convert the bag-of-word vector to set-of-word vector, and sum all of them together.<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Eigen::<span class="function">MatrixXf <span class="title">dataMat2</span><span class="params">(dataMat)</span></span>; <span class="comment">// make a copy of dataMat</span></span><br><span class="line">Eigen::VectorXf termCount; <span class="comment">// the sumed vector</span></span><br><span class="line">termCount.resize(ncol); <span class="comment">// ncol is number of column of dataMat</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i != nrow; ++i)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j != ncol; ++j)</span><br><span class="line">	&#123; <span class="comment">// for each element in dataMat2</span></span><br><span class="line">		<span class="keyword">if</span> (dataMat2(i,j) &gt; <span class="number">1</span>) <span class="comment">// only keep 1 and 0</span></span><br><span class="line">			dataMat2(i,j) = <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	termCount += dataMat2.row(i); <span class="comment">// no. of doc. each term appears</span></span><br><span class="line">&#125;</span><br><span class="line">dataMat2.resize(<span class="number">0</span>,<span class="number">0</span>); <span class="comment">//release</span></span><br></pre></td></tr></table></figure></p>
+<p>Finally, the weight of each term <em>j</em> to document <em>i</em> is<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> tf = dataMat(i,j) / (dataMat.row(i).sum());</span><br><span class="line"><span class="keyword">double</span> idf = <span class="built_in">log</span>((<span class="keyword">double</span>)nrow / (termCount(j))); <span class="comment">// nrow is number of rows of dataMat</span></span><br><span class="line"><span class="keyword">double</span> weight = tf * idf;</span><br></pre></td></tr></table></figure></p>
+<p>See the complete code <a href="https://github.com/taozhaojie/TFIDF_cpp/blob/master/tfidf.cpp" target="_blank" rel="external">here</a></p>
+
+      
+    </div>
+  
+    <footer class="article-footer">
+      
+    </footer>
+  
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2015/06/07/last.fm-scrape/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Scrape Last.fm using Ruby&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Teddy Tao&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+<script>
+  var disqus_shortname = 'zhaojietao';
+  
+  var disqus_url = 'http://yoursite.com/2015/06/12/tfidf/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
